@@ -1,9 +1,18 @@
 import { Controller, Get } from '@midwayjs/core';
+import { InjectEntityModel } from '@midwayjs/typegoose';
+import { User } from '../model/user';
+import { ReturnModelType } from '@typegoose/typegoose';
 
 @Controller('/')
 export class HomeController {
+
+  @InjectEntityModel(User)
+  userModel: ReturnModelType<typeof User>;
+
   @Get('/')
   async home(): Promise<string> {
-    return 'Hello Midwayjs!';
+    await this.userModel.insertMany([{ uid: 'test', name: 'test' }])
+    //  const res: any = this.userModel.find().lean()
+    return 'res';
   }
 }
