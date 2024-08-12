@@ -6,11 +6,19 @@ export const Result = {
             data: result,
         }
     },
-    error: (result?: any) => {
+    error: (result: string) => {
         return {
             code: '500',
             msg: 'ERROR',
             data: result,
         }
-    }
+    },
+    identity: () => {
+        return {
+            code: '401',
+            msg: 'ERROR',
+            data: 'Invalid identity',
+        }
+    },
+
 }

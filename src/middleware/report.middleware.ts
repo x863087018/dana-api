@@ -7,6 +7,11 @@ const jwt = require('jsonwebtoken');
 export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
   resolve() {
     return async (ctx: any, next: NextFunction) => {
+      const startTime = Date.now();
+      ctx.logger.info(
+        `收到请求: "${ctx.request.url}", rt = ${Date.now() - startTime
+        }ms ip:${ctx.request.ip}`
+      );
       const url = ctx.req.url
       if (!url) {
         return Result.error('url为空')
@@ -20,30 +25,27 @@ export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
           ctx.logger.error(`token错误:${e}`)
         }
         if (!token) {
-          return Result.error('身份验证失败')
+          return Result.identity()
         }
         let verifyRes
         jwt.verify(token, config.secretKey, (err, decoded) => {
           if (err) {
-            verifyRes = Result.error('身份验证失败')
+            verifyRes = Result.identity()
+          } else {
+            ctx.req.user = decoded; // 将解码后的用户信息存储在请求对象中，方便后续使用
           }
-          ctx.req.user = decoded; // 将解码后的用户信息存储在请求对象中，方便后续使用
+
         })
         if (verifyRes) {
           return verifyRes
         }
 
       }
-      // 控制器前执行的逻辑
-      const startTime = Date.now();
       // 执行下一个 Web 中间件，最后执行到控制器
       // 这里可以拿到下一个中间件或者控制器的返回值
       const result = await next();
       // 控制器之后执行的逻辑
-      ctx.logger.info(
-        `Report "${ctx.request.url}", rt = ${Date.now() - startTime
-        }ms ip:${ctx.request.ip}`
-      );
+
       if (result === null) {
         ctx.status = 200;
       }
