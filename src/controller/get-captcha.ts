@@ -3,7 +3,7 @@ import { Context } from '@midwayjs/koa';
 import { CaptchaService } from '@midwayjs/captcha';
 import { Result } from '../define/result';
 @Controller('/api/captcha')
-export class APIController {
+export class CaptchaController {
   @Inject()
   ctx: Context;
 
@@ -22,13 +22,10 @@ export class APIController {
   @Post('/checkCaptcha')
   async checkImg(@Body('id') id: string, @Body('answer') answer: string) {
     if (!id || !answer) {
-      return 'error requests'
+      return 0
     }
     const passed: boolean = await this.captchaService.check(id, answer);
-    if (passed) {
-      return 'passed';
-    }
-    return 'error';
+    return passed
 
   }
 

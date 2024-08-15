@@ -8,10 +8,13 @@ export class User {
 
 
   @prop()
-  uid: string;
+  uid: string;  //账号
 
   @prop()
-  name: string; //云服务名称
+  name: string; //用户名
+
+  @prop()
+  password: string; //密码
 
   @prop({ type: Number, default: Date.now })
   createdAt: number;
