@@ -1,5 +1,6 @@
 import { MidwayConfig } from '@midwayjs/core';
 import { User } from '../model/user';
+import { ApiRecord } from '../model/apiRecord';
 
 export default {
   // use for cookie sign key, should change to your own and keep security
@@ -16,7 +17,7 @@ export default {
           useUnifiedTopology: true,
         },
         // 关联实体
-        entities: [User]
+        entities: [User, ApiRecord]
       }
     }
   },

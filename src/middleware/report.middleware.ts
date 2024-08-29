@@ -2,9 +2,16 @@ import { Middleware, IMiddleware } from '@midwayjs/core';
 import { NextFunction, Context } from '@midwayjs/koa';
 import { config } from '../config/config';
 import { Result } from '../define/result';
+import { ApiRecord } from '../model/apiRecord';
+import { InjectEntityModel } from '@midwayjs/typegoose';
+import { ReturnModelType } from '@typegoose/typegoose';
 const jwt = require('jsonwebtoken');
 @Middleware()
 export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
+
+  @InjectEntityModel(ApiRecord)
+  apiRecordModel: ReturnModelType<typeof ApiRecord>;
+
   resolve() {
     return async (ctx: any, next: NextFunction) => {
       const startTime = Date.now();
@@ -49,6 +56,7 @@ export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
       if (result === null) {
         ctx.status = 200;
       }
+      await this.apiRecordModel.insertMany([{ api: url, ip: ctx.request.ip, rt: Date.now() - startTime, uid: ctx.req.user.id, result: result }])
       return result
 
     };
