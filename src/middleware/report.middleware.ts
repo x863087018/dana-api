@@ -2,7 +2,7 @@ import { Middleware, IMiddleware } from '@midwayjs/core';
 import { NextFunction, Context } from '@midwayjs/koa';
 import { config } from '../config/config';
 import { Result } from '../define/result';
-import { ApiRecord } from '../model/apiRecord';
+import { ApiRecord } from '../model/api-record';
 import { InjectEntityModel } from '@midwayjs/typegoose';
 import { ReturnModelType } from '@typegoose/typegoose';
 const jwt = require('jsonwebtoken');
@@ -56,7 +56,7 @@ export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
       if (result === null) {
         ctx.status = 200;
       }
-      await this.apiRecordModel.insertMany([{ api: url, ip: ctx.request.ip, rt: Date.now() - startTime, uid: ctx.req.user.id, result: result }])
+      await this.apiRecordModel.insertMany([{ api: url, ip: ctx.request.ip, rt: Date.now() - startTime, uid: ctx.req?.user?.id, result: result }])
       return result
 
     };

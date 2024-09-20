@@ -1,6 +1,6 @@
 import { MidwayConfig } from '@midwayjs/core';
 import { User } from '../model/user';
-import { ApiRecord } from '../model/apiRecord';
+import { ApiRecord } from '../model/api-record';
 
 export default {
   // use for cookie sign key, should change to your own and keep security
