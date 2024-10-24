@@ -9,6 +9,7 @@ import { ReportMiddleware } from './middleware/report.middleware';
 import * as captcha from '@midwayjs/captcha';
 import * as typegoose from '@midwayjs/typegoose';
 import { ILogger } from '@midwayjs/logger';
+// import { Connection } from 'mongoose';
 @Configuration({
   imports: [
     koa,
@@ -28,14 +29,32 @@ export class MainConfiguration {
 
   @Config('mongodb')
   mongodbConfig;
-  
+
+  // @Inject()
+  // connection: Connection;
 
   @Logger()
   logger: ILogger;
-  
+
   async onReady() {
     // add middleware
     this.app.useMiddleware([ReportMiddleware]);
-
+    this.logger.info('启动成功')
+    const port = this.app.getConfig('koa').port;
+    this.logger.info(`应用正在监听端口 ${port}`);
+    // 添加全局错误处理
+    this.app.on('error', (err) => {
+      this.logger.error('Global error:', err);
+    });
+    // 检查 MongoDB 连接
+    // try {
+    //   if (this.connection.readyState === 1) {
+    //     this.logger.info('MongoDB connected successfully');
+    //   } else {
+    //     this.logger.error('MongoDB not connected. Ready state:', this.connection.readyState);
+    //   }
+    // } catch (error) {
+    //   this.logger.error('Error checking MongoDB connection:', error);
+    // }
   }
 }

@@ -1,12 +1,11 @@
 import { MidwayConfig } from '@midwayjs/core';
-import { User } from '../model/user';
-import { ApiRecord } from '../model/api-record';
 
 export default {
   // use for cookie sign key, should change to your own and keep security
   keys: '1712225654823_8287',
   koa: {
     port: 1123,
+    hostname: '0.0.0.0',
   },
   mongoose: {
     dataSource: {
@@ -17,7 +16,7 @@ export default {
           useUnifiedTopology: true,
         },
         // 关联实体
-        entities: [User, ApiRecord]
+        entities: ['model']
       }
     }
   },
