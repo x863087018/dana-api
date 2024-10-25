@@ -14,7 +14,7 @@ export class configController {
 
     @Post('/get-secretKey')
     async getSecretKey(ctx) {
-        console.log(ctx.req.user)
+        console.log(ctx.user)
         const crypto = require('crypto');
         const secretKey = crypto.randomBytes(32).toString('hex');
         return Result.OK(secretKey)

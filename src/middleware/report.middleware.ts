@@ -23,8 +23,13 @@ export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
       if (!url) {
         return Result.error('url为空')
       }
+      //静态资源跳过认证
+      let notPublic = true
+      if (url.includes('dana-files')) {
+        notPublic = false
+      }
       //需要身份认证的接口
-      if (!config.whiteUrl.includes(url)) {
+      if (!config.whiteUrl.includes(url) && notPublic) {
         let token
         try {
           token = ctx.req.headers.authorization.split(' ')[1];
@@ -39,7 +44,7 @@ export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
           if (err) {
             verifyRes = Result.identity()
           } else {
-            ctx.req.user = decoded; // 将解码后的用户信息存储在请求对象中，方便后续使用
+            ctx.user = decoded; // 将解码后的用户信息存储在请求对象中，方便后续使用
           }
 
         })

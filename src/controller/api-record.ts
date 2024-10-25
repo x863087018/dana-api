@@ -7,7 +7,7 @@ export class apiRecordController {
 
     @Inject()
     apiRecordService: ApiRecordService
-    @Post('/getList')
+    @Post('/get-list')
     async getSecretKey(ctx) {
         if (!ctx.req.user) {
             return Result.error('参数错误')

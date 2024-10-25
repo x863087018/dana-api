@@ -9,7 +9,9 @@ import { ReportMiddleware } from './middleware/report.middleware';
 import * as captcha from '@midwayjs/captcha';
 import * as typegoose from '@midwayjs/typegoose';
 import { ILogger } from '@midwayjs/logger';
+import * as staticFile from '@midwayjs/static-file';
 // import { Connection } from 'mongoose';
+import * as busboy from '@midwayjs/busboy';
 @Configuration({
   imports: [
     koa,
@@ -19,7 +21,9 @@ import { ILogger } from '@midwayjs/logger';
       component: info,
       enabledEnvironment: ['local'],
     },
-    captcha
+    busboy,
+    captcha,
+    staticFile
   ],
   importConfigs: [join(__dirname, './config')],
 })

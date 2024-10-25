@@ -6,6 +6,8 @@ export class User {
   @prop({ default: randomIdProfanityFilter })
   _id?: string;
 
+  @prop()
+  avatar: string //头像地址
 
   @prop()
   uid: string;  //账号

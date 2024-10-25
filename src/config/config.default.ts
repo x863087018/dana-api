@@ -1,5 +1,10 @@
 import { MidwayConfig } from '@midwayjs/core';
-
+const fs = require('fs');
+const dirPath = 'D:/dana-files';
+// 检查并创建目录
+if (!fs.existsSync(dirPath)) {
+  fs.mkdirSync(dirPath, { recursive: true }); // 创建目录及其父目录
+}
 export default {
   // use for cookie sign key, should change to your own and keep security
   keys: '1712225654823_8287',
@@ -18,6 +23,19 @@ export default {
         // 关联实体
         entities: ['model']
       }
+    }
+  },
+  busboy: {
+    mode: 'file',
+    tmpdir: dirPath,
+    cleanTimeout: 0,
+  },
+  staticFile: {
+    dirs: {
+      default: {
+        prefix: '/dana-files',
+        dir: dirPath,
+      },
     }
   },
 } as MidwayConfig;

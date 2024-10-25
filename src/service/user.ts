@@ -17,4 +17,7 @@ export class UserService {
         delete res.password
         return res
     }
+    async updateUser(uid: string, params: Partial<User>) {
+        await this.userModel.updateOne({ uid }, params).lean()
+    }
 }
