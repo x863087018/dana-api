@@ -61,7 +61,9 @@ export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
       if (result === null) {
         ctx.status = 200;
       }
-      await this.apiRecordModel.insertMany([{ api: url, ip: ctx.request.ip, rt: Date.now() - startTime, uid: ctx.req?.user?.id, result: result }])
+      if (url !== '/api/api-record/get-list') {
+        await this.apiRecordModel.insertMany([{ api: url, ip: ctx.request.ip, rt: Date.now() - startTime, uid: ctx.user?.id, result: result }])
+      }
       return result
 
     };
