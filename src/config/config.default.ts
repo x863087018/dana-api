@@ -1,6 +1,7 @@
 import { MidwayConfig } from '@midwayjs/core';
+import { config } from './config';
 const fs = require('fs');
-const dirPath = 'D:/dana-files';
+const dirPath = config.dirPath;
 // 检查并创建目录
 if (!fs.existsSync(dirPath)) {
   fs.mkdirSync(dirPath, { recursive: true }); // 创建目录及其父目录

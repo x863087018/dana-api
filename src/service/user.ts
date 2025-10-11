@@ -21,6 +21,15 @@ export class UserService {
         res.avatar = `http://localhost:${this.app.getConfig('koa').port}/dana-files/${res.avatar}`
         return res
     }
+    async getUserInfo(uid: string) {
+        const res = await this.userModel.findOne({ uid: uid }).lean()
+        if (!res) {
+            return
+        }
+        delete res.password
+        res.avatar = `http://localhost:${this.app.getConfig('koa').port}/dana-files/${res.avatar}`
+        return res
+    }
     async updateUser(uid: string, params: Partial<User>) {
         await this.userModel.updateOne({ uid }, params).lean()
     }
