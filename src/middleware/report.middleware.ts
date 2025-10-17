@@ -61,8 +61,11 @@ export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
       if (result === null) {
         ctx.status = 200;
       }
+      const clientIP = ctx.request.get('X-Forwarded-For') || 
+                ctx.request.get('X-Real-IP') || 
+                ctx.request.ip;
       if (url !== '/api/api-record/get-list') {
-        await this.apiRecordModel.insertMany([{ api: url, ip: ctx.request.ip, rt: Date.now() - startTime, uid: ctx.user?.id, result: result }])
+        await this.apiRecordModel.insertMany([{ api: url, ip: clientIP, rt: Date.now() - startTime, uid: ctx.user?.id, result: result }])
       }
       return result
 

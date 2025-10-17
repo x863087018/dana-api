@@ -12,6 +12,7 @@ export default {
   koa: {
     port: 1123,
     hostname: '0.0.0.0',
+    proxy: true, // 添加这一行来信任代理头信息
   },
   mongoose: {
     dataSource: {
