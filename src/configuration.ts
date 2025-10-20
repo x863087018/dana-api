@@ -12,6 +12,7 @@ import { ILogger } from '@midwayjs/logger';
 import * as staticFile from '@midwayjs/static-file';
 // import { Connection } from 'mongoose';
 import * as busboy from '@midwayjs/busboy';
+import * as ws from '@midwayjs/ws';
 @Configuration({
   imports: [
     koa,
@@ -23,7 +24,8 @@ import * as busboy from '@midwayjs/busboy';
     },
     busboy,
     captcha,
-    staticFile
+    staticFile,
+    ws
   ],
   importConfigs: [join(__dirname, './config')],
 })

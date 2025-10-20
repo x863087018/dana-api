@@ -14,12 +14,14 @@
     "@midwayjs/static-file": "^3.18.2",
     "@midwayjs/typegoose": "^3.16.5",
     "@midwayjs/validate": "^3.18.0",
+    "@midwayjs/ws": "^3.18.2",
     "@typegoose/typegoose": "^12.3.0",
     "crypto": "^1.0.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.2"
   },
   "devDependencies": {
+    "@midwayjs/cli": "^2.1.1",
     "@midwayjs/mock": "^3.12.0",
     "@types/jest": "^29.2.0",
     "@types/node": "14",
@@ -40,12 +42,19 @@
   "scripts": {
     "start": "NODE_ENV=production node ./bootstrap.js",
     "dev": "cross-env NODE_ENV=local mwtsc --watch --run ./bootstrap.js",
+    "prod": "cross-env NODE_ENV=production node ./bootstrap.js",
+    "pm2:start": "pm2 start ecosystem.config.js --env production",
+    "pm2:stop": "pm2 stop dana-api",
+    "pm2:restart": "pm2 restart dana-api",
+    "pm2:logs": "pm2 logs dana-api",
+    "pm2:status": "pm2 status",
     "test": "cross-env NODE_ENV=unittest jest",
     "cov": "jest --coverage",
     "lint": "mwts check",
     "lint:fix": "mwts fix",
     "ci": "npm run cov",
-    "build": "gulp build"
+    "build": "gulp build",
+    "build:prod": "gulp build && cp ecosystem.config.js ./dist/"
   },
   "repository": {
     "type": "git",

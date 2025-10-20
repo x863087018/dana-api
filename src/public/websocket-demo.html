@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket 测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #chatBox {
+            height: 300px;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        #messageForm {
+            display: flex;
+        }
+        #messageInput {
+            flex: 1;
+            padding: 8px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .status {
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .message {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .time {
+            font-size: 0.8em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket 通信演示</h1>
+    <div id="statusBox" class="status disconnected">未连接</div>
+    <div id="chatBox"></div>
+    <form id="messageForm">
+        <input type="text" id="messageInput" placeholder="输入消息..." required>
+        <button type="submit">发送</button>
+    </form>
+    <div>
+        <button id="connectBtn">连接</button>
+        <button id="disconnectBtn">断开</button>
+        <button id="pingBtn">发送心跳</button>
+    </div>
+
+    <script>
+        // 配置
+        const wsUrl = 'ws://localhost:1123/ws'; // 修改为与HTTP服务器相同的端口
+        let socket = null;
+        let pingInterval = null;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+
+        // DOM元素
+        const statusBox = document.getElementById('statusBox');
+        const chatBox = document.getElementById('chatBox');
+        const messageForm = document.getElementById('messageForm');
+        const messageInput = document.getElementById('messageInput');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const pingBtn = document.getElementById('pingBtn');
+
+        // 连接WebSocket
+        function connectWebSocket() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                addMessage('系统', '已经连接');
+                return;
+            }
+            
+            // 显示连接中状态
+            statusBox.textContent = '正在连接...';
+            statusBox.className = 'status disconnected';
+            addMessage('系统', '正在尝试连接到 ' + wsUrl);
+            
+            try {
+                // 尝试创建WebSocket连接
+                socket = new WebSocket(wsUrl);
+                
+                // 连接成功
+                socket.onopen = function() {
+                    reconnectAttempts = 0; // 重置重连计数
+                    statusBox.textContent = '已连接';
+                    statusBox.className = 'status connected';
+                    addMessage('系统', '连接成功');
+                    
+                    // 设置定期发送心跳的定时器
+                    pingInterval = setInterval(() => {
+                        sendPing();
+                    }, 30000); // 每30秒发送一次心跳
+                };
+
+                // 接收消息
+                socket.onmessage = function(event) {
+                    try {
+                        console.log('收到原始消息:', event.data);
+                        const data = JSON.parse(event.data);
+                        
+                        if (data.message) {
+                            // 尝试检查message是否是Buffer对象
+                            if (typeof data.message === 'string' && data.message.includes('"type":"Buffer"')) {
+                                try {
+                                    // 尝试解析可能是序列化的Buffer对象
+                                    const bufferObj = JSON.parse(data.message);
+                                    if (bufferObj && bufferObj.type === 'Buffer' && Array.isArray(bufferObj.data)) {
+                                        // 将Buffer转回字符串
+                                        const actualMessage = String.fromCharCode.apply(null, bufferObj.data);
+                                        addMessage(`用户 ${data.from || '未知'}`, actualMessage, data.timestamp);
+                                    } else {
+                                        // 普通JSON字符串
+                                        addMessage(`用户 ${data.from || '未知'}`, data.message, data.timestamp);
+                                    }
+                                } catch (e) {
+                                    // 解析失败，使用原始消息
+                                    addMessage(`用户 ${data.from || '未知'}`, data.message, data.timestamp);
+                                }
+                            } else {
+                                // 普通消息
+                                addMessage(`用户 ${data.from || '未知'}`, data.message, data.timestamp);
+                            }
+                        } else if (data.event === 'pong' || data.message === 'pong') {
+                            // 处理心跳响应
+                            console.log('收到心跳响应:', data);
+                            addMessage('系统', '收到心跳响应', data.timestamp);
+                        } else {
+                            // 处理其他类型消息
+                            console.log('收到其他消息:', data);
+                            addMessage('系统', `收到消息: ${JSON.stringify(data)}`, new Date().toISOString());
+                        }
+                    } catch (error) {
+                        console.error('解析消息失败:', error);
+                        console.log('原始消息:', event.data);
+                        addMessage('系统', `消息格式错误: ${event.data}`, new Date().toISOString());
+                    }
+                };
+
+                // 连接关闭
+                socket.onclose = function(event) {
+                    statusBox.textContent = '连接已断开';
+                    statusBox.className = 'status disconnected';
+                    addMessage('系统', `连接已断开 (代码: ${event.code}, 原因: ${event.reason || '未知'})`);
+                    
+                    // 清除心跳定时器
+                    if (pingInterval) {
+                        clearInterval(pingInterval);
+                        pingInterval = null;
+                    }
+                    
+                    // 尝试重新连接
+                    if (reconnectAttempts < maxReconnectAttempts) {
+                        reconnectAttempts++;
+                        const timeout = Math.min(1000 * reconnectAttempts, 5000); // 递增重试时间，最大5秒
+                        addMessage('系统', `${timeout/1000}秒后尝试重新连接 (第${reconnectAttempts}次)`);
+                        setTimeout(connectWebSocket, timeout);
+                    }
+                };
+
+                // 连接错误
+                socket.onerror = function(error) {
+                    statusBox.textContent = '连接错误';
+                    statusBox.className = 'status disconnected';
+                    console.error('WebSocket错误:', error);
+                    addMessage('系统', '连接错误: ' + (error.message || JSON.stringify(error)));
+                };
+                
+            } catch (error) {
+                addMessage('系统', '创建WebSocket失败: ' + error.message);
+            }
+        }
+
+        // 断开WebSocket连接
+        function disconnectWebSocket() {
+            if (socket) {
+                socket.close();
+                socket = null;
+            }
+        }
+
+        // 发送消息
+        function sendMessage(message) {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                // 直接发送message事件
+                socket.send(message);
+                addMessage('我', message);
+                return true;
+            } else {
+                addMessage('系统', '发送失败：未连接');
+                return false;
+            }
+        }
+
+        // 发送心跳
+        function sendPing() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                // 直接发送ping事件
+                socket.send('ping');
+                console.log('发送心跳');
+            }
+        }
+
+        // 添加消息到聊天框
+        function addMessage(sender, content, time = null) {
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message';
+            
+            const timestamp = time || new Date().toISOString();
+            const formattedTime = new Date(timestamp).toLocaleTimeString();
+            
+            messageEl.innerHTML = `
+                <strong>${sender}:</strong> ${content}
+                <span class="time">${formattedTime}</span>
+            `;
+            
+            chatBox.appendChild(messageEl);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // 事件监听器
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (message) {
+                if (sendMessage(message)) {
+                    messageInput.value = '';
+                }
+            }
+        });
+
+        connectBtn.addEventListener('click', connectWebSocket);
+        disconnectBtn.addEventListener('click', disconnectWebSocket);
+        pingBtn.addEventListener('click', sendPing);
+
+        // 页面加载完成后自动连接
+        // window.addEventListener('load', connectWebSocket);
+    </script>
+</body>
+</html>
