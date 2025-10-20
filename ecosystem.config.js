@@ -21,7 +21,7 @@ module.exports = {
     name: 'dana-api',
     script: 'npm',
     args: 'run prod',
-    cwd: '/home/midway-deploy/apps/dana-api',
+    cwd: '/root/dana-api',
     env: {
       NODE_ENV: 'production',
       PORT: 1123
