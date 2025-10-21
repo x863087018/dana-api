@@ -18,7 +18,7 @@ export class UserService {
             return
         }
         delete res.password
-        res.avatar = `${this.app.getConfig('koa').port}/dana-files/${res.avatar}`
+        res.avatar = `/dana-files/${res.avatar}`
         return res
     }
     async getUserInfo(uid: string) {
@@ -27,7 +27,7 @@ export class UserService {
             return
         }
         delete res.password
-        res.avatar = `${this.app.getConfig('koa').port}/dana-files/${res.avatar}`
+        res.avatar = `/dana-files/${res.avatar}`
         return res
     }
     async updateUser(uid: string, params: Partial<User>) {

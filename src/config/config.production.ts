@@ -15,6 +15,8 @@ export default {
     default: {
       level: 'info',  // 设置为 info 级别，可以看到 info 日志
       consoleLevel: 'info',  // 控制台也输出 info 级别
+      disableFile: false,  // 保留文件日志
+      disableError: false,  // 保留错误日志文件
     },
     clients: {
       coreLogger: {
