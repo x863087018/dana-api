@@ -10,6 +10,23 @@ export default {
     hostname: '0.0.0.0',
     proxy: true,
   },
+  // 生产环境日志配置
+  midwayLogger: {
+    default: {
+      level: 'info',  // 设置为 info 级别，可以看到 info 日志
+      consoleLevel: 'info',  // 控制台也输出 info 级别
+    },
+    clients: {
+      coreLogger: {
+        level: 'info',
+        consoleLevel: 'info',
+      },
+      appLogger: {
+        level: 'info',
+        consoleLevel: 'info',
+      },
+    },
+  },
   // 生产环境MongoDB配置
   mongoose: {
     dataSource: {
