@@ -1,4 +1,4 @@
-import { Middleware, IMiddleware, Inject } from '@midwayjs/core';
+import { Middleware, IMiddleware, Logger } from '@midwayjs/core';
 import { NextFunction, Context } from '@midwayjs/koa';
 import { config } from '../config/config';
 import { Result } from '../define/result';
@@ -13,18 +13,19 @@ export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
   @InjectEntityModel(ApiRecord)
   apiRecordModel: ReturnModelType<typeof ApiRecord>;
 
-  @Inject()
+  @Logger()
   logger: ILogger;
 
   resolve() {
     return async (ctx: any, next: NextFunction) => {
       const startTime = Date.now();
-      // 使用注入的 logger，会输出到控制台
-      this.logger.info(
-        `收到请求: "${ctx.request.url}", rt = ${Date.now() - startTime
-        }ms ip:${ctx.request.ip}`
-      );
       const url = ctx.req.url
+      const logMessage = `收到请求: "${ctx.request.url}", ip: ${ctx.request.ip}`;
+      
+      // 同时输出到控制台（PM2可见）和文件日志
+      console.log(logMessage);
+      this.logger.info(logMessage);
+      
       if (!url) {
         return Result.error('url为空')
       }
@@ -39,7 +40,9 @@ export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
         try {
           token = ctx.req.headers.authorization.split(' ')[1];
         } catch (e) {
-          this.logger.error(`token错误:${e}`)
+          const errorMsg = `token错误: ${e}`;
+          console.error(errorMsg);
+          this.logger.error(errorMsg);
         }
         if (!token) {
           return Result.identity()
