@@ -55,7 +55,7 @@
     "lint:fix": "mwts fix",
     "ci": "npm run cov",
     "build": "gulp build",
-    "build:prod": "gulp build && cp ecosystem.config.js ./dist/"
+    "build:prod": "gulp build"
   },
   "repository": {
     "type": "git",
