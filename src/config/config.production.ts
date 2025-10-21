@@ -13,19 +13,22 @@ export default {
   // 生产环境日志配置
   midwayLogger: {
     default: {
-      level: 'info',  // 设置为 info 级别，可以看到 info 日志
-      consoleLevel: 'info',  // 控制台也输出 info 级别
+      level: 'info',
+      consoleLevel: 'info',
       disableFile: false,  // 保留文件日志
-      disableError: false,  // 保留错误日志文件
+      disableError: false,
+      printConsole: true,  // 关键：输出到控制台（PM2 可以捕获）
     },
     clients: {
       coreLogger: {
         level: 'info',
         consoleLevel: 'info',
+        printConsole: true,
       },
       appLogger: {
         level: 'info',
         consoleLevel: 'info',
+        printConsole: true,  // 关键：让 appLogger 也输出到控制台
       },
     },
   },
