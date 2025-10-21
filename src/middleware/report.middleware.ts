@@ -1,10 +1,11 @@
-import { Middleware, IMiddleware } from '@midwayjs/core';
+import { Middleware, IMiddleware, Inject } from '@midwayjs/core';
 import { NextFunction, Context } from '@midwayjs/koa';
 import { config } from '../config/config';
 import { Result } from '../define/result';
 import { ApiRecord } from '../model/api-record';
 import { InjectEntityModel } from '@midwayjs/typegoose';
 import { ReturnModelType } from '@typegoose/typegoose';
+import { ILogger } from '@midwayjs/logger';
 const jwt = require('jsonwebtoken');
 @Middleware()
 export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
@@ -12,10 +13,14 @@ export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
   @InjectEntityModel(ApiRecord)
   apiRecordModel: ReturnModelType<typeof ApiRecord>;
 
+  @Inject()
+  logger: ILogger;
+
   resolve() {
     return async (ctx: any, next: NextFunction) => {
       const startTime = Date.now();
-      ctx.logger.info(
+      // 使用注入的 logger，会输出到控制台
+      this.logger.info(
         `收到请求: "${ctx.request.url}", rt = ${Date.now() - startTime
         }ms ip:${ctx.request.ip}`
       );
@@ -34,7 +39,7 @@ export class ReportMiddleware implements IMiddleware<Context, NextFunction> {
         try {
           token = ctx.req.headers.authorization.split(' ')[1];
         } catch (e) {
-          ctx.logger.error(`token错误:${e}`)
+          this.logger.error(`token错误:${e}`)
         }
         if (!token) {
           return Result.identity()

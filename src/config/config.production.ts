@@ -15,20 +15,19 @@ export default {
     default: {
       level: 'info',
       consoleLevel: 'info',
-      disableFile: false,  // 保留文件日志
-      disableError: false,
-      printConsole: true,  // 关键：输出到控制台（PM2 可以捕获）
+      disableFile: false,
+      disableConsole: false,  // 启用控制台输出
     },
     clients: {
       coreLogger: {
         level: 'info',
         consoleLevel: 'info',
-        printConsole: true,
+        disableConsole: false,
       },
       appLogger: {
         level: 'info',
         consoleLevel: 'info',
-        printConsole: true,  // 关键：让 appLogger 也输出到控制台
+        disableConsole: false,  // 启用 appLogger 的控制台输出
       },
     },
   },
