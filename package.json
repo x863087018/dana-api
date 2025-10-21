@@ -1,5 +1,5 @@
 {
-  "name": "test",
+  "name": "dana-api",
   "version": "1.0.0",
   "description": "",
   "private": true,
@@ -54,8 +54,8 @@
     "lint": "mwts check",
     "lint:fix": "mwts fix",
     "ci": "npm run cov",
-    "build": "gulp",
-    "build:prod": "gulp"
+    "build": "gulp build",
+    "build:prod": "gulp build"
   },
   "repository": {
     "type": "git",
