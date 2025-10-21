@@ -99,8 +99,52 @@ npm run pm2:start
 
 ## 故障排除
 
-如果应用无法启动，请检查:
+### 常见问题 1: DecoratorManager not singleton 错误
+
+如果遇到以下错误：
+```
+DecoratorManager not singleton and please check @midwayjs/core version
+MidwayMainFrameworkMissingError: Main framework missing
+```
+
+**解决方案：**
+```bash
+# 清理并重新安装依赖
+cd /root/dana-api
+rm -rf node_modules package-lock.json
+npm cache clean --force
+npm install --production
+
+# 检查是否只有一个 @midwayjs/core 版本
+npm ls @midwayjs/core
+
+# 重启应用
+pm2 restart dana-api
+```
+
+详细的故障排除步骤请参考 `SERVER_TROUBLESHOOT.md` 文档。
+
+### 常见问题 2: 应用启动失败
+
+如果应用无法启动，请按以下顺序检查:
 1. 日志文件 - `pm2 logs dana-api`
 2. MongoDB 连接 - 确保连接字符串正确
 3. 文件权限 - 确保应用有权限访问所需目录
 4. 端口占用 - 确保配置的端口未被其他应用占用
+5. Node.js 版本 - 确保版本 >= 12.0.0，推荐 16.x 或 18.x
+
+### 推荐的部署流程
+
+**重要提示：** 为避免依赖冲突，建议使用 `npm ci` 而不是 `npm install`
+
+```bash
+# 在服务器上
+cd /root/dana-api
+
+# 1. 确保有 package-lock.json 文件
+# 2. 使用 npm ci 安装依赖（更可靠）
+npm ci --production
+
+# 3. 启动应用
+pm2 start ecosystem.config.js --env production
+```

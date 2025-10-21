@@ -20,7 +20,6 @@ module.exports = {
   apps: [{
     name: 'dana-api',
     script: './bootstrap.js',
-    // args: 'run prod',
     cwd: '/root/dana-api',
     env: {
       NODE_ENV: 'production',
@@ -34,6 +33,14 @@ module.exports = {
     watch: false,
     max_memory_restart: '1G',
     instances: 1,
-    exec_mode: 'fork'
+    exec_mode: 'fork',
+    // 确保使用正确的 node 环境
+    interpreter: 'node',
+    // 设置 NODE_PATH 避免依赖找不到
+    env_production: {
+      NODE_ENV: 'production',
+      PORT: 1123,
+      NODE_PATH: '/root/dana-api/node_modules'
+    }
   }]
 };
