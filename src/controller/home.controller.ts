@@ -13,6 +13,6 @@ export class HomeController {
   async home(): Promise<string> {
     await this.userModel.insertMany([{ uid: 'test', name: 'test' }])
     //  const res: any = this.userModel.find().lean()
-    return 'res';
+    return '请求有效，接口正常';
   }
 }
