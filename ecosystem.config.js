@@ -19,8 +19,8 @@
 module.exports = {
   apps: [{
     name: 'dana-api',
-    script: 'npm',
-    args: 'run prod',
+    script: './bootstrap.js',
+    // args: 'run prod',
     cwd: '/root/dana-api',
     env: {
       NODE_ENV: 'production',
