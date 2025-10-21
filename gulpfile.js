@@ -23,14 +23,15 @@ gulp.task('copy', () => {
         .pipe(gulp.dest('dist'));
 });
 
-gulp.task(
-    'npm',
-    shell.task(['cd dist && npm install --production --no-audit'])
-);
+// 注释掉 npm 任务，不在 dist 中安装依赖
+// gulp.task(
+//     'npm',
+//     shell.task(['cd dist && npm install --production --no-audit'])
+// );
 
 gulp.task(
     'build',
-    gulp.series('clean', 'tsc', 'copy', 'npm')
+    gulp.series('clean', 'tsc', 'copy')  // 移除 'npm' 步骤
 );
 
 gulp.task('default', gulp.series('build'));
