@@ -44,6 +44,7 @@
     "dev": "cross-env NODE_ENV=local mwtsc --watch --run ./bootstrap.js",
     "prod": "cross-env NODE_ENV=production node ./bootstrap.js",
     "start:prod-local": "cross-env NODE_ENV=production DANA_FILES_DIR=../dana-files node ./bootstrap.js",
+    "deploy": "bash ./deploy.sh",
     "diagnose": "node diagnose.js",
     "pm2:start": "pm2 start ecosystem.config.js --env production",
     "pm2:stop": "pm2 stop dana-api",
