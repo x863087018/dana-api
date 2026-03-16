@@ -37,7 +37,14 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 git checkout "$BRANCH"
 git reset --hard "origin/$BRANCH"
-npm ci || npm install
+# 安装依赖：如果有 lockfile 用 ci，否则用 install
+if [ -f "package-lock.json" ] || [ -f "npm-shrinkwrap.json" ]; then
+  echo "use npm ci"
+  npm ci
+else
+  echo "use npm install"
+  npm install
+fi
 npm run build
 export NODE_ENV=production
 export MIDWAY_SERVER_ENV=production
