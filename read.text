@@ -1,0 +1,6 @@
+在服务器上自测ws是否正常连通
+npm i -g wscat
+wscat -c ws://127.0.0.1:1123/ws
+一键部署流程
+chmod +x *.sh
+./deploy.sh
