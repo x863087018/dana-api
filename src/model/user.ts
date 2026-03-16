@@ -18,6 +18,15 @@ export class User {
   @prop()
   password: string; //密码
 
+  @prop()
+  wxOpenid?: string;
+
+  @prop()
+  wxUnionid?: string;
+
+  @prop()
+  wxSessionKey?: string;
+
   @prop({ type: Number, default: Date.now })
   createdAt: number;
 

@@ -33,4 +33,23 @@ export class UserService {
     async updateUser(uid: string, params: Partial<User>) {
         await this.userModel.updateOne({ uid }, params).lean()
     }
+    async getOrCreateWxUser(openid: string, sessionKey?: string, unionid?: string) {
+        let res = await this.userModel.findOne({ wxOpenid: openid }).lean()
+        if (!res) {
+            const doc = await this.userModel.create({
+                wxOpenid: openid,
+                wxSessionKey: sessionKey,
+                wxUnionid: unionid,
+                uid: openid,
+                name: 'wxuser',
+                avatar: ''
+            })
+            res = doc.toObject()
+        } else {
+            await this.userModel.updateOne({ _id: res._id }, { wxSessionKey: sessionKey, wxUnionid: unionid }).lean()
+        }
+        delete res.password
+        res.avatar = `/dana-files/${res.avatar}`
+        return res
+    }
 }

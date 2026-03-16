@@ -34,4 +34,44 @@ export class userController {
 
         return Result.OK({ user: user, token: jwt.sign(payload, secretKey, options) })
     }
+    @Post('/wxlogin')
+    async wxLogin(@Body('code') code: string) {
+        if (!code) {
+            return Result.error('参数错误')
+        }
+        if (!config.wechat.appId || !config.wechat.appSecret) {
+            return Result.error('未配置微信参数')
+        }
+        const https = require('https')
+        const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${config.wechat.appId}&secret=${config.wechat.appSecret}&js_code=${code}&grant_type=authorization_code`
+        const res: any = await new Promise((resolve, reject) => {
+            https.get(url, (resp) => {
+                let data = ''
+                resp.on('data', (chunk) => {
+                    data += chunk
+                })
+                resp.on('end', () => {
+                    try {
+                        resolve(JSON.parse(data))
+                    } catch (e) {
+                        reject(e)
+                    }
+                })
+            }).on('error', (err) => {
+                reject(err)
+            })
+        })
+        if (!res || res.errcode) {
+            return Result.error('微信登录失败')
+        }
+        const user = await this.userService.getOrCreateWxUser(res.openid, res.session_key, res.unionid)
+        const jwt = require('jsonwebtoken');
+        const payload = {
+            id: user.uid,
+            username: user.name
+        };
+        const secretKey = config.secretKey
+        const options = { expiresIn: '1h' };
+        return Result.OK({ user: user, wechat: { openid: res.openid, session_key: res.session_key, unionid: res.unionid }, token: jwt.sign(payload, secretKey, options) })
+    }
 }

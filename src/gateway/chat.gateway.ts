@@ -35,7 +35,7 @@ export class ChatGateway {
   async onConnectionMethod() {
     // 生成唯一连接ID
     this.connectionId = randomUUID();
-    this.logger.info(`有新的连接：${this.ctx.readyState}, ID: ${this.connectionId}`);
+    console.log(`有新的连接：${this.ctx.readyState}, ID: ${this.connectionId}`);
     // 保存客户端连接
     this.webSocketService.addClient(this.connectionId, this.ctx);
   }
@@ -44,18 +44,18 @@ export class ChatGateway {
   @OnWSMessage('message')
   @WSEmit('message') // 消息处理后广播给所有客户端
   async onMessage(data) {
-    this.logger.info(`收到客户端消息类型: ${typeof data}`);
+    console.log(`收到客户端消息类型: ${typeof data}`);
     
     try {
       // 特别处理Buffer类型数据
       let message = '';
       if (Buffer.isBuffer(data)) {
         message = data.toString('utf-8');
-        this.logger.info(`从原生Buffer解析消息: ${message}`);
+        console.log(`从原生Buffer解析消息: ${message}`);
       } else if (data && data.type === 'Buffer' && Array.isArray(data.data)) {
         // 将Buffer对象转换为字符串
         message = Buffer.from(data.data).toString('utf-8');
-        this.logger.info(`从Buffer对象解析消息: ${message}`);
+        console.log(`从Buffer对象解析消息: ${message}`);
       } else if (typeof data === 'string') {
         try {
           const parsedData = JSON.parse(data);
@@ -75,8 +75,8 @@ export class ChatGateway {
         timestamp: new Date().toISOString(),
       };
       
-      this.logger.info(`处理后的消息内容: ${message}`);
-      this.logger.info(`发送响应: ${JSON.stringify(response)}`);
+      console.log(`处理后的消息内容: ${message}`);
+      console.log(`发送响应: ${JSON.stringify(response)}`);
       
       // 广播消息给所有客户端
       this.webSocketService.broadcastMessage('message', response);
@@ -95,18 +95,18 @@ export class ChatGateway {
   @OnWSMessage('ping')
   @WSEmit('pong')
   async onPing(data) {
-    this.logger.info(`收到心跳检测，客户端ID: ${this.connectionId}`);
+    console.log(`收到心跳检测，客户端ID: ${this.connectionId}`);
     
     try {
       // 处理Buffer类型数据
       if (Buffer.isBuffer(data)) {
         const pingMessage = data.toString('utf-8');
-        this.logger.info(`从原生Buffer解析心跳: ${pingMessage}`);
+        console.log(`从原生Buffer解析心跳: ${pingMessage}`);
       } else if (data && data.type === 'Buffer' && Array.isArray(data.data)) {
         const pingMessage = Buffer.from(data.data).toString('utf-8');
-        this.logger.info(`从Buffer对象解析心跳: ${pingMessage}`);
+        console.log(`从Buffer对象解析心跳: ${pingMessage}`);
       } else if (data) {
-        this.logger.info(`心跳数据: ${typeof data}, 内容: ${JSON.stringify(data)}`);
+        console.log(`心跳数据: ${typeof data}, 内容: ${JSON.stringify(data)}`);
       }
       
       return {
@@ -126,7 +126,7 @@ export class ChatGateway {
   // 客户端断开连接
   @OnWSDisConnection()
   async onDisConnection() {
-    this.logger.info(`客户端断开连接：${this.connectionId}`);
+    console.log(`客户端断开连接：${this.connectionId}`);
     // 清理已断开的客户端连接
     this.webSocketService.removeClient(this.connectionId);
   }
