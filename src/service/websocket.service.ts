@@ -63,7 +63,7 @@ export class WebSocketService {
     for (const [id, client] of this.clients.entries()) {
       try {
         if (client.readyState === 1) { // OPEN
-          client.send(event, data);
+          client.send(data);
         }
       } catch (error) {
         this.logger.error(`向客户端 ${id} 发送消息失败:`, error);

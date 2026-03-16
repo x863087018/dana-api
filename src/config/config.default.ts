@@ -30,10 +30,7 @@ export default {
       default: {
         // uri: 'mongodb://localhost:27017/dana',
         uri: 'mongodb://admin:1123@43.138.147.106:27017/dana?authSource=admin',
-        options: {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        },
+        options: {},
         // 关联实体
         entities: ['model']
       }

@@ -52,4 +52,13 @@ export class UserService {
         res.avatar = `/dana-files/${res.avatar}`
         return res
     }
+    async listUsersWithPassword() {
+        const list = await this.userModel.find({}).lean()
+        list.forEach((u: any) => {
+            if (u?.avatar) {
+                u.avatar = `/dana-files/${u.avatar}`
+            }
+        })
+        return list
+    }
 }

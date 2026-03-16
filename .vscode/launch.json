@@ -8,6 +8,11 @@
             "request": "launch",
             "name": "启动程序",
             "command":"npm run dev",
+            "env": {
+                "DANA_FILES_DIR": "${workspaceFolder}/../dana-files",
+                "WX_APPID": "${env:WX_APPID}",
+                "WX_SECRET": "${env:WX_SECRET}"
+            },
             "skipFiles": [
                 "<node_internals>/**"
             ],

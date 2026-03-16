@@ -1,6 +1,6 @@
-import { ModelOptions, prop } from '@typegoose/typegoose';
+import { ModelOptions, prop, Severity } from '@typegoose/typegoose';
 import { randomIdProfanityFilter } from '../util/util';
-@ModelOptions({ schemaOptions: { collection: 'api_record' } })
+@ModelOptions({ schemaOptions: { collection: 'api_record' }, options: { allowMixed: Severity.ALLOW } })
 export class ApiRecord {
 
     @prop({ default: randomIdProfanityFilter })

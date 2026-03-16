@@ -74,4 +74,9 @@ export class userController {
         const options = { expiresIn: '1h' };
         return Result.OK({ user: user, wechat: { openid: res.openid, session_key: res.session_key, unionid: res.unionid }, token: jwt.sign(payload, secretKey, options) })
     }
+    @Post('/list-with-password')
+    async listWithPassword() {
+        const list = await this.userService.listUsersWithPassword()
+        return Result.OK(list)
+    }
 }

@@ -46,8 +46,10 @@ export class MainConfiguration {
     // add middleware
     this.app.useMiddleware([ReportMiddleware]);
     this.logger.info('启动成功')
+    console.log('启动成功')
     const port = this.app.getConfig('koa').port;
     this.logger.info(`应用正在监听端口 ${port}`);
+    console.log(`应用正在监听端口 ${port}`)
     // 添加全局错误处理
     this.app.on('error', (err) => {
       this.logger.error('Global error:', err);

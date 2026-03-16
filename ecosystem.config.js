@@ -10,7 +10,10 @@ module.exports = {
       max_memory_restart: '1G',
       env_production: {
         NODE_ENV: 'production',
-        MIDWAY_SERVER_ENV: 'production'
+        MIDWAY_SERVER_ENV: 'production',
+        DANA_FILES_DIR: process.env.DANA_FILES_DIR || '/root/dana-files',
+        WX_APPID: process.env.WX_APPID,
+        WX_SECRET: process.env.WX_SECRET
       },
       // PM2 日志配置
       error_file: '/home/midway-deploy/logs/dana-api-error.log',
@@ -24,4 +27,3 @@ module.exports = {
     }
   ]
 };
-

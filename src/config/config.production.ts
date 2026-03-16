@@ -36,10 +36,7 @@ export default {
     dataSource: {
       default: {
         uri: 'mongodb://admin:1123@43.138.147.106:27017/dana?authSource=admin', // 替换为您的MongoDB连接信息
-        options: {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        },
+        options: {},
         // 关联实体
         entities: ['model']
       }

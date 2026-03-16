@@ -79,7 +79,7 @@ export class ChatGateway {
       console.log(`发送响应: ${JSON.stringify(response)}`);
       
       // 广播消息给所有客户端
-      this.webSocketService.broadcastMessage('message', response);
+      this.webSocketService.broadcastMessage('message', JSON.stringify(response));
       
       return response;
     } catch (error) {
