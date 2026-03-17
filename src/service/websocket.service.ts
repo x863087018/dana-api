@@ -1,13 +1,15 @@
 import { Provide, Scope, ScopeEnum, Init, Inject } from '@midwayjs/core';
 import { ILogger } from '@midwayjs/logger';
 import { Context } from '@midwayjs/ws';
+import { Person } from '../gateway/type';
 
 @Provide()
 @Scope(ScopeEnum.Singleton)
 export class WebSocketService {
   // 存储所有的WebSocket连接
   private clients: Map<string, Context> = new Map();
-  
+  private persons: Map<string, Person> = new Map();
+
   @Inject()
   logger: ILogger;
 
@@ -88,5 +90,67 @@ export class WebSocketService {
       }
     }
     return false;
+  }
+  addPerson(p: Person) {
+    this.persons.set(p.connectionId, p);
+  }
+  removePersonByConnectionId(connectionId: string) {
+    this.persons.delete(connectionId);
+  }
+  getPersonList() {
+    return Array.from(this.persons.values());
+  }
+  findPerson(connectionId: string) {
+    return this.persons.get(connectionId);
+  }
+  sendLeaveUser(connectionId: string) {
+    const exists = this.findPerson(connectionId);
+    if (exists) {
+      this.removePersonByConnectionId(connectionId);
+      const response = {
+        message: JSON.stringify({
+          type: 'leave',
+          username: exists.username,
+        }),
+        from: 'system',
+        timestamp: new Date().toISOString(),
+      };
+      this.broadcastMessage('message', JSON.stringify(response));
+    }
+    const persons = this.getPersonList();
+    const response = {
+      message: JSON.stringify({
+        type: 'online_users',
+        users: persons,
+      }),
+      from: 'system',
+      timestamp: new Date().toISOString(),
+    };
+    this.broadcastMessage('message', JSON.stringify(response));
+  }
+  sendOnlineUser(connectionId, data) {
+    const maps = this.getAllClients();
+    const list = [];
+    for (const key of maps.keys()) {
+      list.push(key);
+    }
+    const exists = this.findPerson(connectionId);
+    if (!exists) {
+      this.addPerson({
+        uid: data.uid,
+        username: data.username,
+        connectionId: connectionId,
+      } as Person);
+    }
+    const persons = this.getPersonList();
+    const response = {
+      message: JSON.stringify({
+        type: 'online_users',
+        users: persons,
+      }),
+      from: 'system',
+      timestamp: new Date().toISOString(),
+    };
+    this.broadcastMessage('message', JSON.stringify(response));
   }
 }

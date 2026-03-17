@@ -20,13 +20,13 @@ export class ChatGateway {
 
   @Inject()
   logger: ILogger;
-  
+
   @App('ws')
   wsApp: Application;
 
   @Inject()
   webSocketService: WebSocketService;
-  
+
   // 存储连接ID
   private connectionId: string;
 
@@ -45,7 +45,7 @@ export class ChatGateway {
   @WSEmit('message') // 消息处理后广播给所有客户端
   async onMessage(data) {
     console.log(`收到客户端消息类型: ${typeof data}`);
-    
+
     try {
       // 特别处理Buffer类型数据
       let message = '';
@@ -68,19 +68,34 @@ export class ChatGateway {
       } else {
         message = String(data);
       }
-      
+      if (typeof message === 'string' && message.startsWith('{')) {
+        try {
+          const data = JSON.parse(message);
+          // 心跳不广播
+          if (data.type === 'heartbeat') {
+            console.log(`收到心跳消息: ${data},不广播`);
+            this.webSocketService.sendOnlineUser(this.connectionId, data);
+            return
+          } else if (data.type === 'join') {
+            this.webSocketService.sendOnlineUser(this.connectionId, data);
+            return
+          }
+        } catch (e) {
+          // 忽略解析错误
+        }
+      }
       const response = {
         message: message,
         from: this.connectionId,
         timestamp: new Date().toISOString(),
       };
-      
+
       console.log(`处理后的消息内容: ${message}`);
       console.log(`发送响应: ${JSON.stringify(response)}`);
-      
+
       // 广播消息给所有客户端
       this.webSocketService.broadcastMessage('message', JSON.stringify(response));
-      
+
       return response;
     } catch (error) {
       this.logger.error(`处理消息错误: ${error.message}`);
@@ -96,7 +111,7 @@ export class ChatGateway {
   @WSEmit('pong')
   async onPing(data) {
     console.log(`收到心跳检测，客户端ID: ${this.connectionId}`);
-    
+
     try {
       // 处理Buffer类型数据
       if (Buffer.isBuffer(data)) {
@@ -108,7 +123,7 @@ export class ChatGateway {
       } else if (data) {
         console.log(`心跳数据: ${typeof data}, 内容: ${JSON.stringify(data)}`);
       }
-      
+
       return {
         message: 'pong',
         timestamp: new Date().toISOString(),
@@ -129,5 +144,8 @@ export class ChatGateway {
     console.log(`客户端断开连接：${this.connectionId}`);
     // 清理已断开的客户端连接
     this.webSocketService.removeClient(this.connectionId);
+    // this.webSocketService.removePersonByConnectionId(this.connectionId);
+    // 发送在线用户列表更新
+    this.webSocketService.sendLeaveUser(this.connectionId);
   }
 }
